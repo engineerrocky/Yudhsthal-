@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; background: #000; color: #fff; margin: 0; padding-bottom: 120px; }
+        .header { background: #111; padding: 20px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .logo-circle { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+        .brand-text h2 { margin: 0; color: #ff0000; }
+        .box { background: #111; margin: 20px; padding: 25px; border-radius: 20px; }
+        .btn-opt { width: 100%; padding: 16px; margin: 8px 0; background: #222; border: none; color: white; border-radius: 10px; cursor: pointer; }
+        .btn-opt.selected { background: #ff0000; }
+        .footer { position: fixed; bottom: 0; width: 100%; background: #111; padding: 20px 0; text-align: center; border-top: 2px solid #ff0000; display: flex; justify-content: center; gap: 20px; }
+        .footer a { color: #fff; text-decoration: none; font-weight: bold; font-size: 16px; padding: 10px 15px; background: #ff0000; border-radius: 8px; }
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .stat-card { background: #222; padding: 15px; border-radius: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="logo.png" class="logo-circle">
+    <div class="brand-text"><h2>YUDHSTHAL</h2><p style="margin:0; font-size:10px;">BY ENGINEER ROCKY</p></div>
+</div>
+
+<div id="quiz-area">
+    <div id="start-screen" class="box" style="text-align:center;">
+        <img src="logo.png" style="width:120px; height:120px; border-radius:50%; object-fit:cover; margin-bottom:15px;">
+        <h2 id="e-name">Loading...</h2>
+        <p id="e-time">Time: -- minutes</p>
+        <button onclick="start()" class="btn-opt" style="background:#ff0000;">START TEST</button>
+    </div>
+    <div id="quiz-box" class="box" style="display:none;">
+        <div id="timer-display" style="color:#ff0000; font-weight:bold; text-align:center; margin-bottom:10px;"></div>
+        <div id="q-content"></div>
+    </div>
+</div>
+
+<div class="footer">
+    <a href="https://t.me/engineer_rocky">TELEGRAM</a>
+    <a href="https://youtube.com/@engineerrocky-m4p?si=unofpAWxf3uPjaSX">YOUTUBE</a>
+</div>
+
+<script src="questions.js"></script>
+<script>
+    let i = 0, userAnswers = {}, timeLeft;
+    document.getElementById('e-name').innerText = examData.examName;
+    document.getElementById('e-time').innerText = "Time: " + examData.timeInMinutes + " Minutes";
+
+    function start() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-box').style.display = 'block';
+        timeLeft = examData.timeInMinutes * 60;
+        let timer = setInterval(() => {
+            timeLeft--;
+            let m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer-display').innerText = `Time Left: ${m}:${s<10?'0'+s:s}`;
+            if(timeLeft <= 0) { clearInterval(timer); submitTest(); }
+        }, 1000);
+        render();
+    }
+
+    function render() {
+        const q = examData.questions[i];
+        document.getElementById('q-content').innerHTML = `
+            <select onchange="i=parseInt(this.value); render()" style="width:100%; padding:10px; background:#222; color:white; border-radius:8px; margin-bottom:15px;">
+                ${examData.questions.map((_, idx) => `<option value="${idx}" ${i===idx?'selected':''}>Question ${idx+1}</option>`).join('')}
+            </select>
+            <h3>Q${i+1}: ${q.q}</h3>
+            ${q.opt.map((o, idx) => `<button class="btn-opt ${userAnswers[i]===idx?'selected':''}" onclick="userAnswers[i]=${idx}; render()">${o}</button>`).join('')}
+            <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                <button onclick="i-- ; render()" ${i===0?'disabled':''}>PREV</button>
+                <button onclick="i++ ; render()" ${i===examData.questions.length-1?'disabled':''}>NEXT</button>
+                <button onclick="submitTest()" style="background:#ff0000; padding:5px 20px; border-radius:5px; border:none; color:white;">SUBMIT</button>
+            </div>
+        `;
+    }
+
+    function submitTest() {
+        let corr = 0, att = Object.keys(userAnswers).length, total = examData.questions.length;
+        examData.questions.forEach((q, idx) => { if(userAnswers[idx] === q.ans) corr++; });
+        let wrong = att - corr;
+        let finalScore = (corr * 1) - (wrong * 0.25);
+        
+        document.getElementById('quiz-box').innerHTML = `
+            <h2 style="text-align:center;">DETAILED REPORT</h2>
+            <div class="report-grid">
+                <div class="stat-card">Total<br><b style="font-size:20px;">${total}</b></div>
+                <div class="stat-card">Attempted<br><b style="font-size:20px;">${att}</b></div>
+                <div class="stat-card" style="color:#0f0;">Right<br><b style="font-size:20px;">${corr}</b></div>
+                <div class="stat-card" style="color:#f00;">Wrong<br><b style="font-size:20px;">${wrong}</b></div>
+                <div class="stat-card" style="background:#ff0000;">Final Score<br><b style="font-size:24px;">${finalScore.toFixed(2)}</b></div>
+            </div>
+            <button class="btn-opt" style="background:#ff0000; margin-top:20px;" onclick="viewSolutions()">VIEW SOLUTIONS</button>
+            <button class="btn-opt" onclick="location.reload()">RESTART</button>
+        `;
+    }
+
+    function viewSolutions() {
+        document.getElementById('quiz-box').innerHTML = `
+            <h2 style="color:#ff0000; text-align:center;">SOLUTIONS</h2>
+            <div style="max-height: 400px; overflow-y: auto;">
+                ${examData.questions.map((q, idx) => `
+                    <div style="background:#222; padding:15px; border-radius:10px; margin-bottom:15px;">
+                        <p><b>Q${idx+1}:</b> ${q.q}</p>
+                        <p style="color:#0f0;">✅ Correct Answer: ${q.opt[q.ans]}</p>
+                        <p style="color:#ffcc00;">📍 Your Choice: ${userAnswers[idx] !== undefined ? q.opt[userAnswers[idx]] : 'Not Attempted'}</p>
+                        <p style="border-top:1px solid #444; padding-top:10px; margin-top:10px; font-style:italic;">📖 <b>Detail Solution:</b><br>${q.sol}</p>
+                    </div>
+                `).join('')}
+            </div>
+            <button class="btn-opt" style="background:#ff0000;" onclick="location.reload()">HOME</button>
+        `;
+    }
+</script>
+</body>
+</html>
