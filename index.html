@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
+        .logo-box { margin-top: 50px; }
+        .logo-box img { width: 200px; display: block; margin: 0 auto; }
+        h1 { color: #ff0000; margin-top: 10px; }
+        .login-card { background: #111; padding: 30px; border-radius: 15px; margin: 30px auto; max-width: 300px; border: 1px solid #333; }
+        input { width: 80%; padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; text-align: center; }
+        button { width: 88%; padding: 12px; margin-top: 15px; background: #ff0000; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 0; background: #050505; display: flex; justify-content: center; gap: 20px; border-top: 2px solid #333; }
+        .footer a { color: #ff0000; text-decoration: none; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="logo-box"><img src="logo.png"></div>
+    <h1>YUDHSTHAL</h1>
+    
+    <div class="login-card">
+        <input type="password" id="pass" placeholder="Enter Access Code">
+        <button onclick="check()">UNLOCK TEST</button>
+    </div>
+
+    <div class="footer">
+        <a href="https://t.me/engineer_rocky">TELEGRAM</a>
+        <a href="https://youtube.com/@engineerrocky-m4p?si=unofpAWxf3uPjaSX">YOUTUBE</a>
+    </div>
+
+    <script>
+        function check() {
+            if(document.getElementById('pass').value === "ROCKY2026") window.location.href = "test.html";
+            else alert("Invalid Code!");
+        }
+    </script>
+</body>
+</html>
